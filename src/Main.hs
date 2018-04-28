@@ -18,19 +18,13 @@ site :: Snap ()
 site =
     ifTop (writeBS "hello world") <|>
     route [ ("foo", writeBS "bar")
-          , ("echo/:echoparam", echoHandler)
           , ("new", newNote)
           ] <|>
     dir "static" (serveDirectory ".")
 
-echoHandler :: Snap ()
-echoHandler = do
-    param <- getParam "echoparam"
-    maybe (writeBS "must specify echo/param in URL")
-          writeBS param
-
-
 newNote :: Snap ()
 newNote = do
     uuid <- liftIO $ nextRandom
+    let filePath = "./notes/" ++ (toString uuid)
+    _ <- liftIO $ writeFile filePath ""
     writeText $ pack $ toString uuid
